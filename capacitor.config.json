@@ -1,0 +1,10 @@
+{
+  "appId": "com.rebwar.garmianweather",
+  "appName": "کەشوهەوای گەرمیان",
+  "webDir": "www",
+  "bundledWebRuntime": false,
+  "ios": {
+    "contentInset": "always",
+    "allowsLinkPreview": false
+  }
+}

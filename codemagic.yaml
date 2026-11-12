@@ -1,0 +1,20 @@
+workflows:
+  ios-ipa-build:
+    name: Build Garmian Weather IPA (Rebwar Manj Ali)
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+    scripts:
+      - name: Install dependencies and add iOS platform
+        script: |
+          npm install
+          npx cap add ios
+          npx cap sync ios
+      - name: Build unsigned IPA for Sideloading (AltStore / Sideloadly)
+        script: |
+          cd ios/App
+          xcodebuild -workspace App.xcworkspace -scheme App -configuration Release -sdk iphoneos -archivePath build/App.xcarchive archive CODE_SIGNING_ALLOWED=NO
+          mkdir -p Payload
+          cp -r build/App.xcarchive/Products/Applications/App.app Payload/
+          zip -r GarmianWeather.ipa Payload
+    artifacts:
+      - ios/App/GarmianWeather.ipa
