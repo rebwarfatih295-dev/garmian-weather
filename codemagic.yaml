@@ -9,12 +9,13 @@ workflows:
           npm install
           npx cap add ios
           npx cap sync ios
-      - name: Build unsigned IPA for Sideloading (AltStore / Sideloadly)
+      - name: Build proper IPA for Sideloadly
         script: |
           cd ios/App
-          xcodebuild -workspace App.xcworkspace -scheme App -configuration Release -sdk iphoneos -archivePath build/App.xcarchive archive CODE_SIGNING_ALLOWED=NO
+          xcodebuild -workspace App.xcworkspace -scheme App -configuration Release -sdk iphoneos -derivedDataPath build/DerivedData clean build CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
           mkdir -p Payload
-          cp -r build/App.xcarchive/Products/Applications/App.app Payload/
-          zip -r GarmianWeather.ipa Payload
+          cp -r build/DerivedData/Build/Products/Release-iphoneos/App.app Payload/
+          chmod -R 755 Payload/App.app
+          zip -qry GarmianWeather.ipa Payload
     artifacts:
       - ios/App/GarmianWeather.ipa
