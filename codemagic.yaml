@@ -4,15 +4,21 @@ workflows:
     max_build_duration: 60
     instance_type: mac_mini_m2
     scripts:
-      - name: Install dependencies and add iOS platform
+      - name: Install dependencies and generate iOS App Icon
         script: |
           npm install
+          npm install @capacitor/assets --save-dev
+          mkdir -p assets
+          sips -s format png -z 1024 1024 icon.png.jfif --out assets/icon-only.png
+          cp assets/icon-only.png assets/icon-foreground.png
+          cp assets/icon-only.png assets/icon-background.png
           npx cap add ios
+          npx capacitor-assets generate --ios
           npx cap sync ios
       - name: Build proper IPA for Sideloadly
         script: |
           cd ios/App
-          xcodebuild -workspace App.xcworkspace -scheme App -configuration Release -sdk iphoneos -derivedDataPath build/DerivedData clean build CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+          xcodebuild -workspace App.xcworkspace -scheme App -configuration Release -sdk iphoneos -derivedDataPath build/DerivedData clean build CODE_SIGN_IDENTITY="" CODE_SIGN_REQUIRED=NO CODE_SIGN_ALLOWED=NO
           mkdir -p Payload
           cp -r build/DerivedData/Build/Products/Release-iphoneos/App.app Payload/
           chmod -R 755 Payload/App.app
