@@ -7,7 +7,7 @@ workflows:
       - name: Install dependencies and generate Android App Icon
         script: |
           npm install
-          npm install @capacitor/android @capacitor/assets --save-dev
+          npm install @capacitor/android@^6.0.0 @capacitor/assets --save-dev
           mkdir -p assets
           sips -s format png -z 1024 1024 icon.png --out assets/icon-only.png
           cp assets/icon-only.png assets/icon-foreground.png
