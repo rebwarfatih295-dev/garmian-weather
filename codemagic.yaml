@@ -9,7 +9,7 @@ workflows:
           npm install
           npm install @capacitor/assets --save-dev
           mkdir -p assets
-          sips -s format png -z 1024 1024 icon.png.jfif --out assets/icon-only.png
+          sips -s format png -z 1024 1024 icon.png --out assets/icon-only.png
           cp assets/icon-only.png assets/icon-foreground.png
           cp assets/icon-only.png assets/icon-background.png
           npx cap add ios
