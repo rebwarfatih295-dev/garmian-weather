@@ -15,38 +15,13 @@ workflows:
           npx cap add android
           npx capacitor-assets generate --android
           npx cap sync android
-      - name: Build Android APK
+      - name: Build Signed Release Android APK
         script: |
           cd android
+          keytool -genkey -v -keystore garmian.keystore -alias garmian_key -keyalg RSA -keysize 2048 -validity 10000 -storepass garmian2026 -keypass garmian2026 -dname "CN=Rebwar Manj Ali, OU=Garmiyan Weather, O=Garmiyan, L=Kalar, S=Sulaymaniyah, C=IQ"
           chmod +x gradlew
-          ./gradlew assembleDebug
-          cp app/build/outputs/apk/debug/app-debug.apk ../GarmianWeather.apk
+          ./gradlew assembleRelease
+          $ANDROID_HOME/build-tools/$(ls $ANDROID_HOME/build-tools | tail -n 1)/zipalign -v -p 4 app/build/outputs/apk/release/app-release-unsigned.apk app-release-aligned.apk
+          $ANDROID_HOME/build-tools/$(ls $ANDROID_HOME/build-tools | tail -n 1)/apksigner sign --ks garmian.keystore --ks-pass pass:garmian2026 --key-pass pass:garmian2026 --out ../GarmianWeather-Release.apk app-release-aligned.apk
     artifacts:
-      - GarmianWeather.apk
-
-  ios-ipa-build:
-    name: Build Garmian Weather IPA (Rebwar Manj Ali)
-    max_build_duration: 60
-    instance_type: mac_mini_m2
-    scripts:
-      - name: Install dependencies and generate iOS App Icon
-        script: |
-          npm install
-          npm install @capacitor/assets --save-dev
-          mkdir -p assets
-          sips -s format png -z 1024 1024 icon.png --out assets/icon-only.png
-          cp assets/icon-only.png assets/icon-foreground.png
-          cp assets/icon-only.png assets/icon-background.png
-          npx cap add ios
-          npx capacitor-assets generate --ios
-          npx cap sync ios
-      - name: Build proper IPA for Sideloadly
-        script: |
-          cd ios/App
-          xcodebuild -workspace App.xcworkspace -scheme App -configuration Release -sdk iphoneos -derivedDataPath build/DerivedData clean build CODE_SIGN_IDENTITY="" CODE_SIGN_REQUIRED=NO CODE_SIGN_ALLOWED=NO
-          mkdir -p Payload
-          cp -r build/DerivedData/Build/Products/Release-iphoneos/App.app Payload/
-          chmod -R 755 Payload/App.app
-          zip -qry GarmianWeather.ipa Payload
-    artifacts:
-      - ios/App/GarmianWeather.ipa
+      - GarmianWeather-Release.apk
