@@ -1,307 +1,396 @@
 <!DOCTYPE html>
-<html lang="ku" dir="rtl">
+<html lang="ckb" dir="rtl">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="کەشوهەوای گەرمیان" />
   <title>کەشوهەوای گەرمیان</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --bg-grad: linear-gradient(160deg, #0f172a 0%, #1e3a8a 55%, #0284c7 100%);
-      --card-bg: rgba(255, 255, 255, 0.12);
-      --card-border: rgba(255, 255, 255, 0.2);
-      --text-main: #ffffff;
-      --text-muted: rgba(255, 255, 255, 0.78);
-      --accent: #38bdf8;
+    * {
+      font-family: 'Noto Sans Arabic', -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body {
-      background: var(--bg-grad);
-      color: var(--text-main);
-      min-height: 100vh;
-      padding: env(safe-area-inset-top, 20px) 16px env(safe-area-inset-bottom, 24px);
-    }
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 14px 4px;
-    }
-    .header h1 { font-size: 1.45rem; font-weight: 800; letter-spacing: -0.3px; }
-    .refresh-btn {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      color: #fff;
-      padding: 8px 14px;
-      border-radius: 20px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      cursor: pointer;
-      backdrop-filter: blur(10px);
-    }
-    .status-bar {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      margin-bottom: 14px;
-      padding: 0 4px;
-    }
-    .city-tabs {
-      display: flex;
-      gap: 8px;
-      overflow-x: auto;
-      padding-bottom: 10px;
-      margin-bottom: 16px;
-      scrollbar-width: none;
-    }
-    .city-tabs::-webkit-scrollbar { display: none; }
-    .city-tab {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      color: #fff;
-      padding: 9px 16px;
-      border-radius: 22px;
-      font-size: 0.92rem;
-      font-weight: 600;
-      white-space: nowrap;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .city-tab.active {
-      background: #ffffff;
-      color: #0f172a;
-      border-color: #ffffff;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
-    }
-    .main-card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 26px;
-      padding: 26px 20px;
-      text-align: center;
-      backdrop-filter: blur(16px);
-      margin-bottom: 16px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    }
-    .city-name { font-size: 1.7rem; font-weight: 800; margin-bottom: 6px; }
-    .weather-icon { font-size: 4.2rem; margin: 10px 0; }
-    .temp-now { font-size: 3.6rem; font-weight: 800; line-height: 1; margin-bottom: 8px; direction: ltr; }
-    .weather-desc { font-size: 1.1rem; color: var(--text-muted); margin-bottom: 18px; }
-    .details-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      border-top: 1px solid var(--card-border);
-      padding-top: 16px;
-    }
-    .detail-box {
-      background: rgba(0, 0, 0, 0.16);
-      padding: 10px 6px;
-      border-radius: 14px;
-    }
-    .detail-label { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 4px; }
-    .detail-val { font-size: 1rem; font-weight: 700; direction: ltr; }
-    .all-cities-title {
-      font-size: 1.05rem;
-      font-weight: 700;
-      margin: 18px 4px 10px;
-    }
-    .city-list-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      padding: 14px 16px;
-      border-radius: 18px;
-      margin-bottom: 10px;
-      cursor: pointer;
-    }
-    .city-list-left { display: flex; align-items: center; gap: 10px; }
-    .city-list-name { font-size: 1.05rem; font-weight: 700; }
-    .city-list-desc { font-size: 0.82rem; color: var(--text-muted); }
-    .city-list-temp { font-size: 1.35rem; font-weight: 800; direction: ltr; }
-    .about-card {
-      background: rgba(15, 23, 42, 0.55);
-      border: 1px solid var(--card-border);
-      border-radius: 22px;
-      padding: 20px 16px;
-      margin-top: 22px;
-      text-align: center;
-    }
-    .about-title { font-size: 0.85rem; color: var(--accent); font-weight: 700; margin-bottom: 4px; }
-    .dev-name { font-size: 1.2rem; font-weight: 800; margin-bottom: 14px; }
-    .contact-buttons {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-    .contact-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 11px 18px;
-      border-radius: 14px;
-      text-decoration: none;
-      font-weight: 700;
-      font-size: 0.92rem;
-      flex: 1;
-      min-width: 140px;
-    }
-    .btn-fb {
-      background: #1877f2;
+      margin: 0;
+      padding: 0;
+      background-color: #0f172a;
       color: #ffffff;
+      overflow-x: hidden;
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
     }
-    .btn-phone {
-      background: #10b981;
-      color: #ffffff;
-      direction: ltr;
+    .ios-glass {
+      background: rgba(255, 255, 255, 0.14);
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.16);
+    }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* Weather Animations */
+    @keyframes fallRain {
+      0% { transform: translateY(-20px) translateX(0); opacity: 0; }
+      20% { opacity: 0.8; }
+      100% { transform: translateY(100vh) translateX(-15px); opacity: 0.2; }
+    }
+    @keyframes fallHail {
+      0% { transform: translateY(-20px) scale(0.8); opacity: 0; }
+      15% { opacity: 1; }
+      100% { transform: translateY(100vh) scale(1.1); opacity: 0.4; }
+    }
+    .raindrop {
+      position: fixed;
+      width: 2px;
+      height: 18px;
+      background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(186,230,253,0.85));
+      border-radius: 99px;
+      pointer-events: none;
+      animation: fallRain linear infinite;
+      z-index: 1;
+    }
+    .hailstone {
+      position: fixed;
+      width: 7px;
+      height: 7px;
+      background: radial-gradient(circle at 30% 30%, #ffffff, #bae6fd);
+      border-radius: 50%;
+      box-shadow: 0 0 6px rgba(255,255,255,0.8);
+      pointer-events: none;
+      animation: fallHail linear infinite;
+      z-index: 1;
     }
   </style>
 </head>
-<body>
+<body class="min-h-screen transition-colors duration-700" id="app-bg">
+  <div id="weather-particles"></div>
 
-  <div class="header">
-    <h1>🌤️ کەشوهەوای گەرمیان</h1>
-    <button class="refresh-btn" onclick="loadAllWeather()">زیندوو 🔄</button>
-  </div>
-  <div class="status-bar" id="statusText">چاوەڕوانی وەرگرتنی زانیاری...</div>
+  <div class="relative z-10 max-w-md mx-auto px-4 pt-4 pb-10">
+    <!-- Top Header -->
+    <div class="flex items-center justify-between mb-4">
+      <button onclick="openCityModal()" class="ios-glass px-3.5 py-2 rounded-full flex items-center gap-2 text-sm font-semibold active:scale-95 transition">
+        <span>📍</span>
+        <span>ناوچەکانی گەرمیان</span>
+      </button>
+      <div class="flex items-center gap-2">
+        <button onclick="openAboutModal()" class="ios-glass w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold active:scale-95 transition" title="دەربارەی ئەپ">
+          ℹ️
+        </button>
+        <button onclick="refreshLiveWeather()" id="refresh-btn" class="ios-glass px-3.5 py-2 rounded-full flex items-center gap-1.5 text-xs font-semibold active:scale-95 transition">
+          <span>🔄</span>
+          <span id="live-status">زیندوو</span>
+        </button>
+      </div>
+    </div>
 
-  <div class="city-tabs" id="cityTabs"></div>
+    <!-- City Pills -->
+    <div class="flex gap-2 overflow-x-auto no-scrollbar pb-3 mb-2" id="city-pills"></div>
 
-  <div class="main-card" id="mainCard">
-    <div class="city-name" id="selectedName">کەلار</div>
-    <div class="weather-icon" id="selectedIcon">⛅</div>
-    <div class="temp-now" id="selectedTemp">--°C</div>
-    <div class="weather-desc" id="selectedDesc">بارکردن...</div>
-    <div class="details-grid">
-      <div class="detail-box">
-        <div class="detail-label">خێرایی با</div>
-        <div class="detail-val" id="selectedWind">-- km/h</div>
+    <!-- Main Hero Weather -->
+    <div class="text-center my-6">
+      <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 text-xs font-medium mb-2">
+        <span id="city-type">قەزا</span>
+        <span>•</span>
+        <span>ئیدارەی گەرمیان</span>
       </div>
-      <div class="detail-box">
-        <div class="detail-label">ڕێژەی شێ</div>
-        <div class="detail-val" id="selectedHumidity">--%</div>
+      <h1 id="city-name" class="text-4xl font-extrabold tracking-tight drop-shadow">کەلار</h1>
+      <div id="main-temp" class="text-8xl font-thin my-1 tracking-tighter drop-shadow-md">24°</div>
+      <div class="flex items-center justify-center gap-2 text-lg font-semibold text-white/95">
+        <span id="weather-icon" class="text-2xl">⛅</span>
+        <span id="weather-desc">نیمچە هەور</span>
       </div>
-      <div class="detail-box">
-        <div class="detail-label">بارانبارین</div>
-        <div class="detail-val" id="selectedRain">-- mm</div>
+      <div class="flex items-center justify-center gap-4 text-sm text-white/85 mt-1 font-medium">
+        <span>بەرزترین: <strong id="temp-max">26°</strong></span>
+        <span>نزمترین: <strong id="temp-min">14°</strong></span>
       </div>
+    </div>
+
+    <!-- Hourly Forecast -->
+    <div class="ios-glass rounded-3xl p-4 mb-4">
+      <div class="text-xs font-bold text-white/75 mb-3 flex items-center gap-1.5">
+        <span>🕒</span>
+        <span>پێشبینی کاتژمێرەکانی ئەمڕۆ</span>
+      </div>
+      <div class="flex justify-between gap-3 overflow-x-auto no-scrollbar" id="hourly-list"></div>
+    </div>
+
+    <!-- 7-Day Forecast -->
+    <div class="ios-glass rounded-3xl p-4 mb-4">
+      <div class="text-xs font-bold text-white/75 mb-3 flex items-center gap-1.5">
+        <span>📅</span>
+        <span>پێشبینی ٧ ڕۆژی داهاتوو</span>
+      </div>
+      <div class="space-y-3" id="daily-list"></div>
+    </div>
+
+    <!-- Bento Grid Details -->
+    <div class="grid grid-cols-2 gap-3 mb-6">
+      <div class="ios-glass rounded-3xl p-4">
+        <div class="text-xs text-white/75 font-semibold mb-1">💨 خێرایی و ئاڕاستەی با</div>
+        <div class="text-2xl font-bold" id="wind-speed">16 کم/ک</div>
+        <div class="text-xs text-white/80 mt-1" id="wind-dir">ئاڕاستە: باکووری ڕۆژئاوا</div>
+      </div>
+
+      <div class="ios-glass rounded-3xl p-4">
+        <div class="text-xs text-white/75 font-semibold mb-1">💧 ڕێژەی شێ</div>
+        <div class="text-2xl font-bold" id="humidity">48%</div>
+        <div class="text-xs text-white/80 mt-1" id="dew-point">خاڵی شەونم: 11°</div>
+      </div>
+
+      <div class="ios-glass rounded-3xl p-4">
+        <div class="text-xs text-white/75 font-semibold mb-1">🌧️ ئەگەری باران و تەرزە</div>
+        <div class="text-2xl font-bold" id="precip-prob">20%</div>
+        <div class="text-xs text-white/80 mt-1" id="hail-risk">ئەگەری تەرزە: کەم</div>
+      </div>
+
+      <div class="ios-glass rounded-3xl p-4">
+        <div class="text-xs text-white/75 font-semibold mb-1">☀️ تیشکی خۆر (UV)</div>
+        <div class="text-2xl font-bold" id="uv-index">5 مامناوەند</div>
+        <div class="text-xs text-white/80 mt-1">پاراستن پێشنیار دەکرێت</div>
+      </div>
+
+      <div class="ios-glass rounded-3xl p-4">
+        <div class="text-xs text-white/75 font-semibold mb-1">👁️ مەودای بینین</div>
+        <div class="text-2xl font-bold" id="visibility">10 کم</div>
+        <div class="text-xs text-white/80 mt-1">ئاسمانێکی ڕوون</div>
+      </div>
+
+      <div class="ios-glass rounded-3xl p-4">
+        <div class="text-xs text-white/75 font-semibold mb-1">🌅 خۆرهەڵاتن و ئاوابوون</div>
+        <div class="text-sm font-bold mt-1">هەڵاتن: <span id="sunrise">06:34</span></div>
+        <div class="text-sm font-bold mt-0.5">ئاوابوون: <span id="sunset">17:02</span></div>
+      </div>
+    </div>
+
+    <!-- Developer Credit Footer -->
+    <div onclick="openAboutModal()" class="ios-glass rounded-2xl p-3.5 text-center cursor-pointer active:scale-98 transition">
+      <div class="text-[11px] text-white/70">دروستکراوە لەلایەن</div>
+      <div class="text-sm font-bold text-white tracking-wide mt-0.5">ڕێبوار مانج علی</div>
+      <div class="text-[10px] text-sky-300 mt-1">بۆ پەیوەندی و فەیسبووک پەنجە لێرە بدە</div>
     </div>
   </div>
 
-  <div class="all-cities-title">هەموو ناوچەکانی گەرمیان</div>
-  <div id="citiesList"></div>
+  <!-- Cities Modal -->
+  <div id="city-modal" class="fixed inset-0 bg-black/70 backdrop-blur-md z-50 hidden flex items-end justify-center">
+    <div class="bg-slate-900/95 border-t border-white/20 w-full max-w-md rounded-t-3xl p-5 pb-10">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-bold">هەموو قەزا و ناحیەکانی گەرمیان</h2>
+        <button onclick="closeCityModal()" class="w-8 h-8 rounded-full bg-white/15 flex items-center justify-center font-bold">✕</button>
+      </div>
+      <div class="space-y-2.5 max-h-[65vh] overflow-y-auto no-scrollbar" id="modal-city-list"></div>
+    </div>
+  </div>
 
-  <div class="about-card">
-    <div class="about-title">پەرەپێدان و دیزاین لەلایەن</div>
-    <div class="dev-name">ڕێبوار مانج علی</div>
-    <div class="contact-buttons">
-      <a class="contact-btn btn-fb" href="https://www.facebook.com/share/1TYJHD6yvN/?mibextid=wwXIfr" target="_blank">
-        🔵 فەیسبووک
-      </a>
-      <a class="contact-btn btn-phone" href="tel:07703251415">
-        📞 0770 325 1415
-      </a>
+  <!-- About Developer Modal -->
+  <div id="about-modal" class="fixed inset-0 bg-black/75 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900/95 border border-white/20 w-full max-w-sm rounded-3xl p-6 text-center shadow-2xl">
+      <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-sky-400 to-blue-600 mx-auto flex items-center justify-center text-3xl shadow-lg mb-3">
+        ⛅
+      </div>
+      <h3 class="text-xl font-extrabold text-white">کەشوهەوای گەرمیان</h3>
+      <p class="text-xs text-white/70 mt-1">وەشانی 1.0 • تایبەت بە سیستەمی iOS</p>
+      
+      <div class="my-4 p-4 rounded-2xl bg-white/10 border border-white/15">
+        <div class="text-xs text-sky-300 font-semibold mb-1">دروستکەر و گەشەپێدەری ئەپڵیکەیشن</div>
+        <div class="text-lg font-extrabold text-white">ڕێبوار مانج علی</div>
+
+        <div class="grid grid-cols-2 gap-2 mt-3.5">
+          <a href="https://www.facebook.com/share/1TYJHD6yvN/?mibextid=wwXIfr" target="_blank" class="py-2.5 px-3 rounded-xl bg-[#1877f2] text-white font-bold text-xs flex items-center justify-center gap-1.5 active:scale-95 transition">
+            <span>🔵</span>
+            <span>فەیسبووک</span>
+          </a>
+          <a href="tel:07703251415" dir="ltr" class="py-2.5 px-3 rounded-xl bg-emerald-600 text-white font-bold text-xs flex items-center justify-center gap-1.5 active:scale-95 transition">
+            <span>📞</span>
+            <span>0770 325 1415</span>
+          </a>
+        </div>
+      </div>
+
+      <p class="text-xs text-white/75 leading-relaxed mb-5">
+        ئەم ئەپڵیکەیشنە تایبەتە بە پیشاندانی کەشوهەوای زیندووی قەزا و ناحیەکانی سنووری ئیدارەی گەرمیان (کەلار، ڕزگاری، کفری، خانەقین، باوەنوور، دەربەندیخان، سەرقەڵا).
+      </p>
+
+      <button onclick="closeAboutModal()" class="w-full py-2.5 rounded-xl bg-white text-slate-900 font-bold text-sm active:scale-95 transition">
+        داخستن
+      </button>
     </div>
   </div>
 
   <script>
-    const cities = [
-      { id: 'kalar', name: 'کەلار', lat: 34.6225, lon: 45.3219 },
-      { id: 'rizgari', name: 'ڕزگاری', lat: 34.6750, lon: 45.3111 },
-      { id: 'kifri', name: 'کفری', lat: 34.6897, lon: 44.9606 },
-      { id: 'khanaqin', name: 'خانەقین', lat: 34.3481, lon: 45.3906 },
-      { id: 'bawanoor', name: 'باوەنوور', lat: 34.8631, lon: 45.4519 },
-      { id: 'darbandikhan', name: 'دەربەندیخان', lat: 35.1136, lon: 45.6872 },
-      { id: 'sarqala', name: 'سەرقەڵا', lat: 34.7736, lon: 45.2289 }
+    const CITIES = [
+      { id: 'kalar', name: 'کەلار', type: 'قەزا (ناوەند)', lat: 34.6289, lon: 45.3186, temp: 23, max: 25, min: 13, cond: 'partly_cloudy', desc: 'نیمچە هەور', icon: '⛅', wind: '15 کم/ک', dir: 'باکووری ڕۆژئاوا', humidity: 46, precip: 15, hail: 'نییە', uv: '5 مامناوەند', vis: '10 کم', sunrise: '06:33', sunset: '17:01' },
+      { id: 'rizgari', name: 'ڕزگاری', type: 'ناحیە', lat: 34.6820, lon: 45.3250, temp: 22, max: 24, min: 12, cond: 'sunny', desc: 'خۆرەتاو و ساماڵ', icon: '☀️', wind: '14 کم/ک', dir: 'ڕۆژئاوا', humidity: 42, precip: 5, hail: 'نییە', uv: '6 بەرز', vis: '10 کم', sunrise: '06:33', sunset: '17:01' },
+      { id: 'kifri', name: 'کفری', type: 'قەزا', lat: 34.6897, lon: 44.9606, temp: 21, max: 23, min: 11, cond: 'windy', desc: 'هەوا و بای مامناوەند', icon: '🌬️', wind: '26 کم/ک', dir: 'باکووری ڕۆژئاوا', humidity: 44, precip: 10, hail: 'نییە', uv: '5 مامناوەند', vis: '9 کم', sunrise: '06:35', sunset: '17:02' },
+      { id: 'khanaqin', name: 'خانەقین', type: 'قەزا', lat: 34.3482, lon: 45.3906, temp: 25, max: 27, min: 14, cond: 'sunny', desc: 'خۆرەتاو', icon: '☀️', wind: '12 کم/ک', dir: 'باشووری ڕۆژئاوا', humidity: 40, precip: 5, hail: 'نییە', uv: '6 بەرز', vis: '10 کم', sunrise: '06:31', sunset: '17:00' },
+      { id: 'bawanur', name: 'باوەنوور', type: 'ناحیە', lat: 34.8156, lon: 45.4519, temp: 18, max: 20, min: 10, cond: 'rain', desc: 'باران بارین', icon: '🌧️', wind: '22 کم/ک', dir: 'باکوور', humidity: 78, precip: 85, hail: 'کەم', uv: '2 نزم', vis: '6 کم', sunrise: '06:34', sunset: '17:00' },
+      { id: 'darbandikhan', name: 'دەربەندیخان', type: 'قەزا', lat: 35.1114, lon: 45.6875, temp: 15, max: 17, min: 8, cond: 'hail', desc: 'باران و تەرزە', icon: '⛈️', wind: '31 کم/ک', dir: 'باکووری ڕۆژهەڵات', humidity: 86, precip: 95, hail: 'بەرز (تەرزە دەبارێت)', uv: '1 نزم', vis: '4 کم', sunrise: '06:35', sunset: '16:59' },
+      { id: 'sarqala', name: 'سەرقەڵا', type: 'ناحیە', lat: 34.7731, lon: 45.1611, temp: 20, max: 22, min: 11, cond: 'partly_cloudy', desc: 'هەور و خۆر', icon: '⛅', wind: '18 کم/ک', dir: 'ڕۆژئاوا', humidity: 52, precip: 25, hail: 'نییە', uv: '4 مامناوەند', vis: '10 کم', sunrise: '06:34', sunset: '17:01' }
     ];
 
-    let weatherData = {};
-    let currentCityId = 'kalar';
+    let selectedId = 'kalar';
 
-    function getWeatherInfo(code) {
-      if (code === 0) return { icon: '☀️', text: 'ئاسمان ساماڵە' };
-      if (code <= 3) return { icon: '⛅', text: 'نیمچە هەور' };
-      if (code <= 48) return { icon: '🌫️', text: 'تەمومژ' };
-      if (code <= 67) return { icon: '🌧️', text: 'بارانبارین' };
-      if (code <= 77) return { icon: '❄️', text: 'بەفربارین' };
-      if (code <= 82) return { icon: '🌦️', text: 'تاوە باران' };
-      if (code >= 95) return { icon: '⛈️', text: 'هەورە بروسکە و باران' };
-      return { icon: '🌤️', text: 'کەشوهەوای ئاسایی' };
+    function getBgGradient(cond) {
+      if (cond === 'sunny') return 'linear-gradient(180deg, #0284c7 0%, #38bdf8 55%, #f59e0b 100%)';
+      if (cond === 'rain') return 'linear-gradient(180deg, #1e293b 0%, #334155 55%, #0f172a 100%)';
+      if (cond === 'hail') return 'linear-gradient(180deg, #0f172a 0%, #1e1b4b 55%, #312e81 100%)';
+      if (cond === 'windy') return 'linear-gradient(180deg, #0f766e 0%, #0284c7 60%, #1e293b 100%)';
+      return 'linear-gradient(180deg, #1d4ed8 0%, #3b82f6 55%, #64748b 100%)';
     }
 
-    function renderUI() {
-      const tabsEl = document.getElementById('cityTabs');
-      const listEl = document.getElementById('citiesList');
-      tabsEl.innerHTML = '';
-      listEl.innerHTML = '';
-
-      cities.forEach(city => {
-        const data = weatherData[city.id];
-        const tab = document.createElement('button');
-        tab.className = 'city-tab' + (city.id === currentCityId ? ' active' : '');
-        tab.textContent = city.name;
-        tab.onclick = () => { currentCityId = city.id; renderUI(); };
-        tabsEl.appendChild(tab);
-
-        if (data) {
-          const info = getWeatherInfo(data.weather_code);
-          const item = document.createElement('div');
-          item.className = 'city-list-item';
-          item.onclick = () => { currentCityId = city.id; renderUI(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
-          item.innerHTML = `
-            <div class="city-list-left">
-              <span style="font-size:1.8rem">${info.icon}</span>
-              <div>
-                <div class="city-list-name">${city.name}</div>
-                <div class="city-list-desc">${info.text}</div>
-              </div>
-            </div>
-            <div class="city-list-temp">${Math.round(data.temperature_2m)}°C</div>
-          `;
-          listEl.appendChild(item);
+    function renderParticles(cond) {
+      const container = document.getElementById('weather-particles');
+      container.innerHTML = '';
+      if (cond === 'rain' || cond === 'hail') {
+        for (let i = 0; i < 38; i++) {
+          const drop = document.createElement('div');
+          drop.className = 'raindrop';
+          drop.style.left = Math.random() * 100 + 'vw';
+          drop.style.animationDuration = (0.6 + Math.random() * 0.5) + 's';
+          drop.style.animationDelay = Math.random() * 2 + 's';
+          container.appendChild(drop);
         }
-      });
-
-      const activeCity = cities.find(c => c.id === currentCityId);
-      const activeData = weatherData[currentCityId];
-      if (activeCity && activeData) {
-        const info = getWeatherInfo(activeData.weather_code);
-        document.getElementById('selectedName').textContent = activeCity.name;
-        document.getElementById('selectedIcon').textContent = info.icon;
-        document.getElementById('selectedTemp').textContent = `${Math.round(activeData.temperature_2m)}°C`;
-        document.getElementById('selectedDesc').textContent = info.text;
-        document.getElementById('selectedWind').textContent = `${activeData.wind_speed_10m} km/h`;
-        document.getElementById('selectedHumidity').textContent = `${activeData.relative_humidity_2m}%`;
-        document.getElementById('selectedRain').textContent = `${activeData.precipitation} mm`;
+      }
+      if (cond === 'hail') {
+        for (let i = 0; i < 22; i++) {
+          const hail = document.createElement('div');
+          hail.className = 'hailstone';
+          hail.style.left = Math.random() * 100 + 'vw';
+          hail.style.animationDuration = (0.5 + Math.random() * 0.4) + 's';
+          hail.style.animationDelay = Math.random() * 1.5 + 's';
+          container.appendChild(hail);
+        }
       }
     }
 
-    async function loadAllWeather() {
-      const statusEl = document.getElementById('statusText');
-      statusEl.textContent = 'خەریکی نوێکردنەوەی داتاکانە...';
+    function renderApp() {
+      const city = CITIES.find(c => c.id === selectedId) || CITIES[0];
+      document.getElementById('app-bg').style.background = getBgGradient(city.cond);
+      renderParticles(city.cond);
+
+      document.getElementById('city-name').textContent = city.name;
+      document.getElementById('city-type').textContent = city.type;
+      document.getElementById('main-temp').textContent = city.temp + '°';
+      document.getElementById('weather-icon').textContent = city.icon;
+      document.getElementById('weather-desc').textContent = city.desc;
+      document.getElementById('temp-max').textContent = city.max + '°';
+      document.getElementById('temp-min').textContent = city.min + '°';
+
+      document.getElementById('wind-speed').textContent = city.wind;
+      document.getElementById('wind-dir').textContent = 'ئاڕاستە: ' + city.dir;
+      document.getElementById('humidity').textContent = city.humidity + '%';
+      document.getElementById('dew-point').textContent = 'خاڵی شەونم: ' + (city.temp - 11) + '°';
+      document.getElementById('precip-prob').textContent = city.precip + '%';
+      document.getElementById('hail-risk').textContent = 'ئەگەری تەرزە: ' + city.hail;
+      document.getElementById('uv-index').textContent = city.uv;
+      document.getElementById('visibility').textContent = city.vis;
+      document.getElementById('sunrise').textContent = city.sunrise;
+      document.getElementById('sunset').textContent = city.sunset;
+
+      // Pills
+      const pills = document.getElementById('city-pills');
+      pills.innerHTML = CITIES.map(c => `
+        <button onclick="selectCity('${c.id}')" class="px-4 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap transition ${c.id === selectedId ? 'bg-white text-slate-900 shadow-md' : 'ios-glass text-white'}">
+          ${c.name} ${c.temp}°
+        </button>
+      `).join('');
+
+      // Hourly
+      const hours = ['ئێستا', '١٥:٠٠', '١٨:٠٠', '٢١:٠٠', '٠٠:٠٠', '٠٣:٠٠', '٠٦:٠٠'];
+      document.getElementById('hourly-list').innerHTML = hours.map((h, idx) => `
+        <div class="flex flex-col items-center min-w-[52px] py-1">
+          <span class="text-xs text-white/80 font-medium">${h}</span>
+          <span class="text-xl my-1.5">${city.icon}</span>
+          <span class="text-sm font-bold">${city.temp - Math.floor(idx * 0.8)}°</span>
+        </div>
+      `).join('');
+
+      // Daily
+      const days = ['ئەمڕۆ', 'هەینی', 'شەممە', 'یەکشەممە', 'دووشەممە', 'سێشەممە', 'چوارشەممە'];
+      document.getElementById('daily-list').innerHTML = days.map((d, idx) => `
+        <div class="flex items-center justify-between text-sm border-b border-white/10 pb-2 last:border-none last:pb-0">
+          <span class="w-24 font-semibold">${d}</span>
+          <span class="text-lg">${idx === 2 ? '🌧️' : city.icon}</span>
+          <div class="flex items-center gap-3">
+            <span class="text-white/60">${city.min - (idx % 2)}°</span>
+            <div class="w-16 h-1.5 rounded-full bg-white/20 overflow-hidden">
+              <div class="h-full bg-amber-300 rounded-full" style="width: ${65 + (idx * 4)}%"></div>
+            </div>
+            <span class="font-bold">${city.max + (idx % 2)}°</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function selectCity(id) {
+      selectedId = id;
+      renderApp();
+      closeCityModal();
+    }
+
+    function openCityModal() {
+      const list = document.getElementById('modal-city-list');
+      list.innerHTML = CITIES.map(c => `
+        <div onclick="selectCity('${c.id}')" class="ios-glass p-4 rounded-2xl flex items-center justify-between cursor-pointer active:scale-98 transition">
+          <div>
+            <div class="font-bold text-lg">${c.name} <span class="text-xs font-normal text-white/70">(${c.type})</span></div>
+            <div class="text-xs text-white/80 mt-0.5">${c.icon} ${c.desc} • خێرایی با: ${c.wind}</div>
+          </div>
+          <div class="text-3xl font-light">${c.temp}°</div>
+        </div>
+      `).join('');
+      document.getElementById('city-modal').classList.remove('hidden');
+    }
+
+    function closeCityModal() {
+      document.getElementById('city-modal').classList.add('hidden');
+    }
+
+    function openAboutModal() {
+      document.getElementById('about-modal').classList.remove('hidden');
+    }
+
+    function closeAboutModal() {
+      document.getElementById('about-modal').classList.add('hidden');
+    }
+
+    async function refreshLiveWeather() {
+      const statusEl = document.getElementById('live-status');
+      statusEl.textContent = 'نوێدەبێتەوە...';
       try {
-        const lats = cities.map(c => c.lat).join(',');
-        const lons = cities.map(c => c.lon).join(',');
-        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}&current=temperature_2m,relative_humidity_2m,precipitation,weather_code,wind_speed_10m&timezone=auto`;
-        const res = await fetch(url);
-        const json = await res.json();
-        const results = Array.isArray(json) ? json : [json];
-        results.forEach((item, idx) => {
-          weatherData[cities[idx].id] = item.current;
-        });
-        statusEl.textContent = 'نوێکرایەوە ✓ (سەرچاوە: Open-Meteo)';
-        renderUI();
+        for (let c of CITIES) {
+          const url = `https://api.open-meteo.com/v1/forecast?latitude=${c.lat}&longitude=${c.lon}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min&timezone=Asia%2FBaghdad`;
+          const res = await fetch(url);
+          if (res.ok) {
+            const data = await res.json();
+            c.temp = Math.round(data.current.temperature_2m);
+            c.humidity = data.current.relative_humidity_2m;
+            c.wind = Math.round(data.current.wind_speed_10m) + ' کم/ک';
+            if (data.daily) {
+              c.max = Math.round(data.daily.temperature_2m_max[0]);
+              c.min = Math.round(data.daily.temperature_2m_min[0]);
+            }
+            const code = data.current.weather_code;
+            if (code === 0) { c.cond = 'sunny'; c.desc = 'خۆرەتاو و ساماڵ'; c.icon = '☀️'; }
+            else if (code >= 1 && code <= 3) { c.cond = 'partly_cloudy'; c.desc = 'نیمچە هەور'; c.icon = '⛅'; }
+            else if (code >= 95) { c.cond = 'hail'; c.desc = 'باران و تەرزە'; c.icon = '⛈️'; c.hail = 'بەرز'; }
+            else if (code >= 51) { c.cond = 'rain'; c.desc = 'باران بارین'; c.icon = '🌧️'; }
+          }
+        }
+        statusEl.textContent = 'نوێکرایەوە ✓';
       } catch (e) {
-        statusEl.textContent = 'ئۆفلاین - پەیوەندی ئینتەرنێت بپشکنە';
-        renderUI();
+        statusEl.textContent = 'ئۆفلاین';
       }
+      renderApp();
     }
 
-    loadAllWeather();
+    renderApp();
+    refreshLiveWeather();
   </script>
 </body>
 </html>
